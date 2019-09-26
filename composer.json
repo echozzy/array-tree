@@ -1,0 +1,20 @@
+{
+    "name": "echozzy/array-tree",
+    "description": "array-tree",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "echozzy",
+            "email": "348858954@qq.com"
+        }
+    ],
+    "require": {
+    	"php": ">=7.1.3"
+    },
+    "autoload": {
+	    "files": [],
+	    "psr-4": {
+	      "Zzy\\Arr\\": "src"
+	    }
+  	},
+}
