@@ -81,6 +81,52 @@ class Arr
         return $arr;
     }
 
+        /**
+     * 返回多层栏目(无key)
+     *
+     * @param        $data     操作的数组
+     * @param int $p_id 一级p_id的值
+     * @param string $html 栏目名称前缀
+     * @param string $fieldPri 唯一键名，如果是表则是表的主键
+     * @param string $fieldPid 父ID键名
+     * @param string $childString 组合下级键名
+     * @param int $level 不需要传参数（执行时调用）
+     *
+     * @return array
+     */
+    public function channelLevelNokey(
+        $data,
+        $p_id = 0,
+        $html = "&nbsp;",
+        $fieldPri = 'cid',
+        $fieldPid = 'p_id',
+        $childString = 'children',
+        $level = 1
+    ) {
+        if (empty($data)) {
+            return [];
+        }
+        $arr = [];
+        foreach ($data as $v) {
+            if ($v[$fieldPid] == $p_id) {
+                $v['_level'] = $level;
+                $v['_html'] = str_repeat($html, $level - 1);
+                $v[$childString] = $this->channelLevelNokey(
+                    $data,
+                    $v[$fieldPri],
+                    $html,
+                    $fieldPri,
+                    $fieldPid,
+                    $childString,
+                    $level + 1
+                );
+                $arr[] = $v;
+            }
+        }
+
+        return $arr;
+    }
+
     /**
      * 获得栏目列表
      *
@@ -292,8 +338,11 @@ class Arr
             }
 
         }
-        $data = $this->channelLevel($arr,0,"&nbsp;",$fieldPri,$fieldPid);
-
+        $arr = $this->channelLevelNokey($arr,0,"&nbsp;",$fieldPri,$fieldPid);
+        $data = [];
+        foreach ($arr as $d) {
+            $data[] = $d;
+        }
         return $data;
     }
     /**
