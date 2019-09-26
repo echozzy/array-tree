@@ -43,6 +43,7 @@ class Arr
      * @param string $html 栏目名称前缀
      * @param string $fieldPri 唯一键名，如果是表则是表的主键
      * @param string $fieldPid 父ID键名
+     * @param string $childString 组合下级键名
      * @param int $level 不需要传参数（执行时调用）
      *
      * @return array
@@ -53,6 +54,7 @@ class Arr
         $html = "&nbsp;",
         $fieldPri = 'cid',
         $fieldPid = 'p_id',
+        $childString = 'children',
         $level = 1
     ) {
         if (empty($data)) {
@@ -64,12 +66,13 @@ class Arr
                 $arr[$v[$fieldPri]] = $v;
                 $arr[$v[$fieldPri]]['_level'] = $level;
                 $arr[$v[$fieldPri]]['_html'] = str_repeat($html, $level - 1);
-                $arr[$v[$fieldPri]]["_data"] = $this->channelLevel(
+                $arr[$v[$fieldPri]][$childString] = $this->channelLevel(
                     $data,
                     $v[$fieldPri],
                     $html,
                     $fieldPri,
                     $fieldPid,
+                    $childString,
                     $level + 1
                 );
             }
@@ -250,6 +253,49 @@ class Arr
         return $data;
     }
 
+
+     /**
+     * 获得多维树状数据
+     *
+     * @param        $data     数据
+     * @param        $title    字段名
+     * @param string $fieldPri 主键id
+     * @param string $fieldPid 父id
+     * @param string $childString 组合下级键名
+     *
+     * @return array
+     */
+    public function treeLevel($data, $title, $fieldPri = 'cid', $fieldPid = 'p_id', $childString = 'children')
+    {
+        if (!is_array($data) || empty($data)) {
+            return [];
+        }
+        $arr = $this->channelList($data, 0, '', $fieldPri, $fieldPid);
+        foreach ($arr as $k => $v) {
+            $str = "";
+            if ($v['_level'] > 2) {
+                for ($i = 1; $i < $v['_level'] - 1; $i++) {
+                    $str .= "│&nbsp;&nbsp;&nbsp;&nbsp;";
+                }
+            }
+            if ($v['_level'] != 1) {
+                $t = $title ? $v[$title] : '';
+                if (isset($arr[$k + 1])
+                    && $arr[$k + 1]['_level'] >= $arr[$k]['_level']
+                ) {
+                    $arr[$k]['_' . $title] = $str . "├─ " . $v['_html'] . $t;
+                } else {
+                    $arr[$k]['_' . $title] = $str . "└─ " . $v['_html'] . $t;
+                }
+            } else {
+                $arr[$k]['_' . $title] = $v[$title];
+            }
+
+        }
+        $data = $this->channelLevel($arr,0,"&nbsp;",$fieldPri,$fieldPid);
+
+        return $data;
+    }
     /**
      * 获得所有父级栏目
      *
