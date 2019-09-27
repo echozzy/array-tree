@@ -81,7 +81,7 @@ class Arr
         return $arr;
     }
 
-        /**
+    /**
      * 返回多层栏目(无key)
      *
      * @param        $data     操作的数组
@@ -186,6 +186,70 @@ class Arr
         $category = [];
         foreach ($data as $d) {
             $category[$d[$fieldPri]] = $d;
+        }
+
+        return $category;
+    }
+
+    /**
+     * 获得栏目列表(无key)
+     *
+     * @param        $arr      栏目数据
+     * @param int $p_id 操作的栏目
+     * @param string $html 栏目名前字符
+     * @param string $fieldPri 表主键
+     * @param string $fieldPid 父id
+     * @param int $level 等级
+     *
+     * @return array
+     */
+    public function channelListNokey(
+        $arr,
+        $p_id = 0,
+        $html = "&nbsp;",
+        $fieldPri = 'cid',
+        $fieldPid = 'p_id',
+        $level = 1
+    ) {
+        $p_id = is_array($p_id) ? $p_id : [$p_id];
+        $data = [];
+        foreach ($p_id as $id) {
+            $res = $this->_channelList(
+                $arr,
+                $id,
+                $html,
+                $fieldPri,
+                $fieldPid,
+                $level
+            );
+            foreach ($res as $k => $v) {
+                $data[$k] = $v;
+            }
+        }
+        if (empty($data)) {
+            return $data;
+        }
+        foreach ($data as $n => $m) {
+            if ($m['_level'] == 1) {
+                continue;
+            }
+            $data[$n]['_first'] = false;
+            $data[$n]['_end'] = false;
+            if (!isset($data[$n - 1])
+                || $data[$n - 1]['_level'] != $m['_level']
+            ) {
+                $data[$n]['_first'] = true;
+            }
+            if (isset($data[$n + 1])
+                && $data[$n]['_level'] > $data[$n + 1]['_level']
+            ) {
+                $data[$n]['_end'] = true;
+            }
+        }
+        //更新key为栏目主键
+        $category = [];
+        foreach ($data as $d) {
+            $category[] = $d;
         }
 
         return $category;
@@ -316,7 +380,7 @@ class Arr
         if (!is_array($data) || empty($data)) {
             return [];
         }
-        $arr = $this->channelList($data, 0, '', $fieldPri, $fieldPid);
+        $arr = $this->channelListNokey($data, 0, '', $fieldPri, $fieldPid);
         foreach ($arr as $k => $v) {
             $str = "";
             if ($v['_level'] > 2) {
@@ -338,6 +402,7 @@ class Arr
             }
 
         }
+
         $arr = $this->channelLevelNokey($arr,0,"&nbsp;",$fieldPri,$fieldPid);
         $data = [];
         foreach ($arr as $d) {
