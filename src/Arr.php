@@ -332,7 +332,8 @@ class Arr
         if (!is_array($data) || empty($data)) {
             return [];
         }
-        $arr = $this->channelList($data, 0, '', $fieldPri, $fieldPid);
+        // $arr = $this->channelList($data, 0, '', $fieldPri, $fieldPid);
+        $arr = $this->channelListNokey($data, 0, '', $fieldPri, $fieldPid);
         foreach ($arr as $k => $v) {
             $str = "";
             if ($v['_level'] > 2) {
