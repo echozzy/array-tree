@@ -502,18 +502,17 @@ class Arr
     /**
      * 递归实现迪卡尔乘积
      *
-     * @param       $arr 操作的数组
+     * @param       $arr 操作的数组(二维数组)
      * @param array $tmp
      *
      * @return array
      */
-    public function descarte($arr, $tmp = [])
+    public function descarte($arr, $tmp = [], $n_arr=[])
     {
-        $n_arr = [];
         foreach (array_shift($arr) as $v) {
             $tmp[] = $v;
             if ($arr) {
-                $this->descarte($arr, $tmp);
+                $n_arr = $this->descarte($arr, $tmp, $n_arr);
             } else {
                 $n_arr[] = $tmp;
             }
